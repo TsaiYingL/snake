@@ -20,8 +20,8 @@ class DoublyLinkedList {
         int size;
     
     public:
-        public:
         DoublyLinkedList();
+        DoublyLinkedList(Node* node);
         ~DoublyLinkedList(); // destructor. Automatically called when the object is destroyed 
 
         // Insertion
@@ -40,7 +40,7 @@ class DoublyLinkedList {
         int  get_size() const;
         bool is_empty() const;
         void clear();
-        void print() const;
+        void print() const; //print out all vals in the ddl
         void print_reverse() const;
 };
 

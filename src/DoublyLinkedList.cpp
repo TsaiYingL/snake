@@ -8,6 +8,23 @@ DoublyLinkedList<T>::DoublyLinkedList()
     : head(nullptr), tail(nullptr), size(0) {}
 
 template <typename T>
+DoublyLinkedList<T>::DoublyLinkedList(const T& val) {
+    if (!val) throw std::invalid_argument("argument cannot be NULL");
+    Node* node = new Node(val);
+    head = node;
+    tail = node;
+    size = 1;
+}
+
+template <typename T>
+DoublyLinkedList<T>::DoublyLinkedList(Node* node) {
+    if (!node) throw std::invalid_argument("argument cannot be NULL");
+    head = node;
+    tail = node;
+    size = 1;
+}
+
+template <typename T>
 DoublyLinkedList<T>::~DoublyLinkedList() { clear(); }
 
 // ── Insertion ─────────────────────────────────────────────────────
@@ -90,12 +107,12 @@ T DoublyLinkedList<T>::pop_back() {
 template <typename T>
 //Because Node is a type that lives inside a template class —
 //the compiler needs typename to know it's a type and not a variable or function.
-auto DoublyLinkedList<T>::get_head() -> Node* {
+auto DoublyLinkedList<T>::get_head() const -> Node* {
     return head;
 }
 
 template <typename T>
-auto DoublyLinkedList<T>::get_tail() -> Node* {
+auto DoublyLinkedList<T>::get_tail() const -> Node* {
     return tail;
 }
 

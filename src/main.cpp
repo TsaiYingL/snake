@@ -2,6 +2,7 @@
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
+#include "Snake.h"
 
 #define SDA_PIN      8
 #define SCL_PIN      9
@@ -36,6 +37,8 @@ void setup() {
   display.drawRoundRect(4, 4, 120, 56, 6, SSD1306_WHITE);
   display.display();
   delay(2000);
+
+  Snake snake();
 }
 
 void loop() {
