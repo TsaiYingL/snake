@@ -9,15 +9,14 @@ DoublyLinkedList<T>::DoublyLinkedList()
 
 template <typename T>
 DoublyLinkedList<T>::DoublyLinkedList(const T& val) {
-    if (!val) throw std::invalid_argument("argument cannot be NULL");
-    Node* node = new Node(val);
+    Node<T>* node = new Node<T>(val);
     head = node;
     tail = node;
     size = 1;
 }
 
 template <typename T>
-DoublyLinkedList<T>::DoublyLinkedList(Node* node) {
+DoublyLinkedList<T>::DoublyLinkedList(Node<T>* node) {
     if (!node) throw std::invalid_argument("argument cannot be NULL");
     head = node;
     tail = node;
@@ -30,7 +29,7 @@ DoublyLinkedList<T>::~DoublyLinkedList() { clear(); }
 // ── Insertion ─────────────────────────────────────────────────────
 template <typename T>
 void DoublyLinkedList<T>::push_front(const T& val) {
-    Node* newNode = new Node(val);
+    Node<T>* newNode = new Node<T>(val);
 
     if(!head) {
         head = tail = newNode;
@@ -45,7 +44,7 @@ void DoublyLinkedList<T>::push_front(const T& val) {
 
 template <typename T>
 void DoublyLinkedList<T>::push_back(const T& val) {
-    Node* newNode = new Node(val);
+    Node<T>* newNode = new Node<T>(val);
 
     if(!head) {
         head = tail = newNode;
@@ -65,7 +64,7 @@ T DoublyLinkedList<T>::pop_front() {
 
     size--;
 
-    Node* node = head;
+    Node<T>* node = head;
     T val = node->data;
     head = node->next;
     delete node;
@@ -88,7 +87,7 @@ T DoublyLinkedList<T>::pop_back() {
 
     size--;
 
-    Node* node = tail;
+    Node<T>* node = tail;
     T val = node->data;
     tail = node->prev;
     delete node;
@@ -107,12 +106,12 @@ T DoublyLinkedList<T>::pop_back() {
 template <typename T>
 //Because Node is a type that lives inside a template class —
 //the compiler needs typename to know it's a type and not a variable or function.
-auto DoublyLinkedList<T>::get_head() const -> Node* {
+auto DoublyLinkedList<T>::get_head() const -> Node<T>* {
     return head;
 }
 
 template <typename T>
-auto DoublyLinkedList<T>::get_tail() const -> Node* {
+auto DoublyLinkedList<T>::get_tail() const -> Node<T>* {
     return tail;
 }
 
@@ -140,9 +139,9 @@ template <typename T>
 void DoublyLinkedList<T>::print() const {
     if (!head) throw std::underflow_error("List is empty");
 
-    Node* node = head;
+    Node<T>* node = head;
     while (node) {
-        std::cout << node->val;
+        std::cout << node->data;
         if (node->next) std::cout << " -> ";
         node = node->next;
     }
@@ -155,12 +154,18 @@ template <typename T>
 void DoublyLinkedList<T>::print_reverse() const {
     if (!tail) throw std::underflow_error("List is empty");
 
-    Node* node = tail;
+    Node<T>* node = tail;
     while (node) {
-        std::cout << node->val;
+        std::cout << node->data;
         if (node->prev) std::cout << " -> ";
         node = node->prev;
     }
 
     std::cout << "\n";
 }
+
+// ── Explicit instantiations ───────────────────────────────────────
+template class DoublyLinkedList<int>;
+template class DoublyLinkedList<float>;
+template class DoublyLinkedList<double>;
+template class DoublyLinkedList<std::string>;

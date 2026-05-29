@@ -2,119 +2,102 @@
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
-#include "Snake.h"
 
-#define SDA_PIN      8
-#define SCL_PIN      9
-#define SCREEN_W     128
-#define SCREEN_H     64
-#define OLED_ADDR    0x3C
+#define SDA_PIN     8
+#define SCL_PIN     9
+#define JOY_X_PIN   1
+#define JOY_Y_PIN   2
+#define JOY_SW_PIN  42
 
+#define SCREEN_W    128
+#define SCREEN_H    64
+#define OLED_ADDR   0x3C
 Adafruit_SSD1306 display(SCREEN_W, SCREEN_H, &Wire, -1);
 
-int    screen     = 0;
-unsigned long lastSwitch = 0;
-int    barWidth   = 0;
-int    scrollX    = SCREEN_W;
+#define BOX_X   74
+#define BOX_Y    5
+#define BOX_W   50
+#define BOX_H   54
 
 void setup() {
   Serial.begin(115200);
   Wire.begin(SDA_PIN, SCL_PIN);
+  pinMode(JOY_SW_PIN, INPUT_PULLUP);
 
   if (!display.begin(SSD1306_SWITCHCAPVCC, OLED_ADDR)) {
-    Serial.println("SSD1306 not found — check wiring!");
+    Serial.println("SSD1306 not found!");
     while (true) delay(500);
   }
 
   display.clearDisplay();
   display.setTextColor(SSD1306_WHITE);
-  display.setTextSize(2);
-  display.setCursor(14, 12);
-  display.print("ESP32-S3");
   display.setTextSize(1);
-  display.setCursor(22, 36);
-  display.print("OLED test ready");
-  display.drawRoundRect(4, 4, 120, 56, 6, SSD1306_WHITE);
+  display.setCursor(14, 20);
+  display.print("Joystick + OLED");
+  display.setCursor(32, 38);
+  display.print("test ready");
   display.display();
-  delay(2000);
-
-  Snake snake();
+  delay(1500);
 }
 
 void loop() {
-  unsigned long now = millis();
+  int rawX = analogRead(JOY_X_PIN);
+  int rawY = analogRead(JOY_Y_PIN);
+  bool pressed = (digitalRead(JOY_SW_PIN) == LOW);
 
-  if (screen != 2 && now - lastSwitch > 2500) {
-    screen = (screen + 1) % 4;
-    lastSwitch = now;
-    scrollX = SCREEN_W;
-    barWidth = 0;
-  }
+  int pctX = map(rawX, 0, 4095, 0, 100);
+  int pctY = map(rawY, 0, 4095, 0, 100);
+
+  int dotX = map(rawX, 0, 4095, BOX_X + 2, BOX_X + BOX_W - 3);
+  int dotY = map(rawY, 0, 4095, BOX_Y + 2, BOX_Y + BOX_H - 3);
 
   display.clearDisplay();
+  display.setTextSize(1);
 
-  switch (screen) {
+  display.setCursor(0, 0);
+  display.print("X:");
+  display.print(rawX);
 
-    case 0:
-      display.setTextSize(2);
-      display.setCursor(8, 6);
-      display.print("Hello,");
-      display.setCursor(8, 28);
-      display.print("World!");
-      display.setTextSize(1);
-      display.setCursor(0, 54);
-      display.print("ESP32-S3-DevKitC-1");
-      display.drawLine(0, 50, 128, 50, SSD1306_WHITE);
-      break;
+  display.setCursor(0, 12);
+  display.print("Y:");
+  display.print(rawY);
 
-    case 1:
-      display.setTextSize(1);
-      display.setCursor(0, 0);
-      display.print("Shapes");
-      display.drawRect(0, 12, 36, 24, SSD1306_WHITE);
-      display.fillCircle(64, 24, 14, SSD1306_WHITE);
-      display.drawTriangle(92, 36, 110, 10, 128, 36, SSD1306_WHITE);
-      display.fillRect(0, 42, 36, 18, SSD1306_WHITE);
-      display.drawCircle(64, 50, 10, SSD1306_WHITE);
-      display.fillTriangle(92, 60, 110, 38, 128, 60, SSD1306_WHITE);
-      break;
+  display.setCursor(0, 24);
+  display.print("X%:");
+  display.print(pctX);
 
-    case 2: {
-      display.setTextSize(1);
-      display.setCursor(0, 0);
-      display.print("Loading...");
-      display.drawRoundRect(4, 26, 120, 14, 4, SSD1306_WHITE);
-      if (barWidth < 116) barWidth += 2;
-      display.fillRoundRect(6, 28, barWidth, 10, 3, SSD1306_WHITE);
-      int pct = map(barWidth, 0, 116, 0, 100);
-      display.setCursor(52, 48);
-      display.print(pct);
-      display.print("%");
-      if (barWidth >= 116 && now - lastSwitch > 600) {
-        screen = (screen + 1) % 4;
-        lastSwitch = now;
-        barWidth = 0;
-      }
-      break;
-    }
+  display.setCursor(0, 36);
+  display.print("Y%:");
+  display.print(pctY);
 
-    case 3: {
-      display.setTextSize(1);
-      display.setCursor(0, 0);
-      display.print("Marquee scroll:");
-      display.drawLine(0, 11, 128, 11, SSD1306_WHITE);
-      display.setTextSize(2);
-      display.setCursor((int)scrollX, 26);
-      display.print("ESP32  SNAKE  GAME ");
-      scrollX -= 3;
-      if (scrollX < -320) scrollX = SCREEN_W;
-      display.setTextSize(1);
-      display.setCursor(20, 54);
-      display.print("GPIO8=SDA  GPIO9=SCL");
-      break;
-    }
+  if (pressed) {
+    display.setCursor(0, 52);
+    display.print("PRESSED");
+  }
+
+  display.drawLine(70, 0, 70, 63, SSD1306_WHITE);
+  display.drawRect(BOX_X, BOX_Y, BOX_W, BOX_H, SSD1306_WHITE);
+
+  int midX = BOX_X + BOX_W / 2;
+  int midY = BOX_Y + BOX_H / 2;
+  display.drawLine(midX, BOX_Y + 1, midX, BOX_Y + BOX_H - 2, SSD1306_WHITE);
+  display.drawLine(BOX_X + 1, midY, BOX_X + BOX_W - 2, midY, SSD1306_WHITE);
+
+  display.fillRect(dotX - 1, dotY - 1, 3, 3, SSD1306_WHITE);
+
+  if (pressed) {
+    display.fillRect(BOX_X + 1, BOX_Y + 1, 14, 9, SSD1306_WHITE);
+    display.setTextColor(SSD1306_BLACK);
+    display.setCursor(BOX_X + 2, BOX_Y + 2);
+    display.print("BTN");
+    display.setTextColor(SSD1306_WHITE);
   }
 
   display.display();
+
+  Serial.print("X="); Serial.print(rawX);
+  Serial.print("  Y="); Serial.print(rawY);
+  Serial.print("  SW="); Serial.println(pressed ? "PRESSED" : "open");
+
   delay(30);
 }

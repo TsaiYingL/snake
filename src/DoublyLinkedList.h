@@ -2,26 +2,21 @@
 #define DLINKEDLIST_H
 
 #include <stdexcept>
+#include <iostream>
+#include "Node.h"
 
 //Makes the class generic; without templates you'd need a separate class for every type 
 template <typename T>
 class DoublyLinkedList {
     private:
-        struct Node {
-            T data;
-            Node* prev;
-            Node* next;
-            //initialize new node
-            Node(const T& val) : data(val), prev(nullptr), next(nullptr) {}
-        };
-
-        Node* head;
-        Node* tail;
+        Node<T>* head;
+        Node<T>* tail;
         int size;
     
     public:
         DoublyLinkedList();
-        DoublyLinkedList(Node* node);
+        DoublyLinkedList(const T& val);
+        DoublyLinkedList(Node<T>* node);
         ~DoublyLinkedList(); // destructor. Automatically called when the object is destroyed 
 
         // Insertion
@@ -33,8 +28,8 @@ class DoublyLinkedList {
         T pop_back();
 
         // Access
-        Node* get_head();
-        Node* get_tail();
+        Node<T>* get_head() const;
+        Node<T>* get_tail() const;
 
         // Utility
         int  get_size() const;

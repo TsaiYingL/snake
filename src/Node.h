@@ -1,3 +1,6 @@
+#ifndef NODE_H
+#define NODE_H
+
 template <typename T>
 struct Node {
     T data;
@@ -6,3 +9,5 @@ struct Node {
     //initialize new node
     Node(const T& val) : data(val), prev(nullptr), next(nullptr) {}
 };
+
+#endif
