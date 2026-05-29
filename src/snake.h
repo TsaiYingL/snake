@@ -22,7 +22,7 @@ class Snake {
         ~Snake();
 
         //movement
-        void move(int dx, int dy);
+        void move(Position direction);
         void grow(int dx, int dy);
 
         //getters
@@ -33,7 +33,7 @@ class Snake {
 
         //game logic
         void add_points(int amount);
-        bool is_alive()        const;
+        bool alive()        const;
         bool hit_self()       const;
 
         void clear();

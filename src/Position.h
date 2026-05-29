@@ -1,6 +1,9 @@
 #ifndef POSITION_H
 #define POSITION_H
 
+#include <iostream>
+#include <ostream>
+
 struct Position {
     int x, y;
 
@@ -11,6 +14,11 @@ struct Position {
     //a == b is the same as a.operator==(b)
     bool operator==(const Position& other) const {
         return x == other.x && y == other.y;
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, const Position& pos) {
+        os << "(" << pos.x << ", " << pos.y << ")";
+        return os;
     }
 };
 

@@ -10,9 +10,9 @@ Snake::Snake(int x, int y) : body(Position(x,y)), points(0) {}
 Snake::~Snake() { clear(); }
 
 // movement
-void Snake::move(int dx, int dy) {
+void Snake::move(Position direction) {
     Position curr = body.get_head()->data;
-    body.push_front(Position(curr.x + dx, curr.y + dy));
+    body.push_front(Position(curr.x + direction.x, curr.y + direction.y));
     body.pop_back();
 }
 
@@ -58,7 +58,7 @@ bool Snake::hit_self() const {
     return false;
 }
 
-bool Snake::is_alive() const {
+bool Snake::alive() const {
     return !hit_self();
 }
 

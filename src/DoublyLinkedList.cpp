@@ -1,4 +1,5 @@
 #include "DoublyLinkedList.h"
+#include "Position.h"
 #include <iostream>
 
 // ── Constructor / Destructor ──────────────────────────────────────
@@ -168,4 +169,5 @@ void DoublyLinkedList<T>::print_reverse() const {
 template class DoublyLinkedList<int>;
 template class DoublyLinkedList<float>;
 template class DoublyLinkedList<double>;
+template class DoublyLinkedList<Position>;
 template class DoublyLinkedList<std::string>;

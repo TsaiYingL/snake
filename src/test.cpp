@@ -2,20 +2,21 @@
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
-#include "Snake.h"
-#include "Joystick.h"
 
 #define SDA_PIN     8
 #define SCL_PIN     9
+#define JOY_X_PIN   1
+#define JOY_Y_PIN   2
+#define JOY_SW_PIN  42
 
 #define SCREEN_W   128
 #define SCREEN_H    64
 #define OLED_ADDR  0x3C
 Adafruit_SSD1306 display(SCREEN_W, SCREEN_H, &Wire, -1);
 
-#define BOX_X   0
-#define BOX_Y   10
-#define BOX_W   128
+#define BOX_X   74
+#define BOX_Y    5
+#define BOX_W   50
 #define BOX_H   54
 
 bool          running     = false;
@@ -23,18 +24,13 @@ bool          lastBtn     = HIGH;
 unsigned long lastDebounce = 0;
 #define       DEBOUNCE_MS  200
 
-Joystick joy(1, 2, 42);
-Snake snake(64, 32);
-
 void drawIdle();
-void drawTest(Position dir, bool btn);
-void drawResult();
+void drawTest();
 
 void setup() {
   Serial.begin(115200);
   Wire.begin(SDA_PIN, SCL_PIN);
-  
-  joy.begin();
+  pinMode(JOY_SW_PIN, INPUT_PULLUP);
 
   if (!display.begin(SSD1306_SWITCHCAPVCC, OLED_ADDR)) {
     Serial.println("SSD1306 not found!");
@@ -46,8 +42,7 @@ void setup() {
 }
 
 void loop() {
-  Position dir = joy.get_direction();
-  bool btn  = joy.is_pressed();
+  bool btn = digitalRead(JOY_SW_PIN);
 
   if (lastBtn == HIGH && btn == LOW) {
     unsigned long now = millis();
@@ -57,14 +52,9 @@ void loop() {
       if (!running) drawIdle();
     }
   }
-  
   lastBtn = btn;
 
-  if(running && snake.alive()) {
-    drawTest(dir, btn);
-  } else if (running&& !snake.alive()) {
-    drawResult();
-  }
+  if (running) drawTest();
 
   delay(30);
 }
@@ -73,36 +63,23 @@ void drawIdle() {
   display.clearDisplay();
   display.setTextSize(1);
 
-  display.drawRoundRect(0, 0, 128, 10, 4, SSD1306_WHITE);
+  display.setCursor(16, 10);
+  display.print("Joystick + OLED");
+  display.setCursor(32, 24);
+  display.print("test ready");
 
-  display.setCursor(0, 0);
+  display.drawRoundRect(4, 4, 120, 42, 4, SSD1306_WHITE);
+
+  display.setCursor(12, 52);
   display.print("[ press btn to start ]");
 
   display.display();
 }
 
-void drawResult() {
-  display.clearDisplay();
-  display.setTextSize(1);
-
-  display.drawRoundRect(0, 0, 128, 10, 4, SSD1306_WHITE);
-
-  display.setCursor(0, 0);
-  display.print("[ GAME END!!! ]");
-
-  display.setCursor(16, 10);
-  display.print("Score:");
-  display.print(snake.get_points());
-  display.setCursor(32, 24);
-  display.print("[ Press btn to restart ]");
-
-  display.display();
-}
-
-void drawTest(Position dir, bool btn) {
-  int rawX     = dir.x;
-  int rawY     = dir.y;
-  bool pressed = btn;
+void drawTest() {
+  int rawX     = analogRead(JOY_X_PIN);
+  int rawY     = analogRead(JOY_Y_PIN);
+  bool pressed = (digitalRead(JOY_SW_PIN) == LOW);
 
   int pctX = map(rawX, 0, 4095, 0, 100);
   int pctY = map(rawY, 0, 4095, 0, 100);
